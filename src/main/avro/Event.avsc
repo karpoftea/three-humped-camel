@@ -1,0 +1,10 @@
+{
+    "namespace": "my.threehumpedcamel.model",
+    "name": "Event",
+    "type": "record",
+    "fields" : [
+        {"name": "id", "type": "long"},
+        {"name": "type", "type": "string"},
+        {"name": "properties",  "type": { "type": "map", "values" : "string", "default": {}} }
+    ]
+}

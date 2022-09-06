@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'com.github.davidmc24.gradle.plugin.avro' version "1.3.0"
+}
+
+group 'my.threehumpedcamel'
+version '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.3")
+    implementation platform("org.apache.camel.springboot:camel-spring-boot-bom:3.18.1")
+
+    implementation ("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    implementation ("org.springframework.boot:spring-boot-starter-actuator") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    implementation "org.springframework.boot:spring-boot-starter-log4j2"
+
+    implementation ("org.apache.camel.springboot:camel-spring-boot-starter") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    implementation ("org.apache.camel.springboot:camel-kafka-starter") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    implementation ("org.apache.camel.springboot:camel-http-starter") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    implementation "org.apache.camel:camel-micrometer:3.18.1"
+    implementation "org.apache.camel:camel-avro:3.18.1"
+
+    implementation "io.micrometer:micrometer-registry-prometheus"
+
+    testImplementation ("org.springframework.boot:spring-boot-starter-test") {
+        exclude module: 'spring-boot-starter-logging'
+    }
+    testImplementation "org.apache.camel:camel-test-spring-junit5:3.18.1"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // configure encoding for both java code and avro plugin
+    options.encoding = 'UTF-8'
+}
