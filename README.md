@@ -1,4 +1,9 @@
-# Kafka
+# General 
+Simple Spring Boot web-app with Apache Camel, that receives data from Kafka endpoint, filters, transforms it and then
+publishes to http endpoint.
+
+# Useful commands
+## Kafka
 ```bash
 # List broker topics
 kcat -b localhost:29092 -L
