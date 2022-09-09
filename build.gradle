@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'com.github.davidmc24.gradle.plugin.avro' version "1.3.0"
+    id 'com.google.cloud.tools.jib' version '3.3.0'
 }
 
 group 'my.threehumpedcamel'
@@ -50,4 +51,11 @@ test {
 tasks.withType(JavaCompile).configureEach {
     // configure encoding for both java code and avro plugin
     options.encoding = 'UTF-8'
+}
+
+jib {
+    from.image = "adoptopenjdk/openjdk11:jre-11.0.12_7-alpine"
+    to.image = "${project.name}"
+    container.format = "OCI"
+    containerizingMode = "packaged"
 }
