@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MainRouter extends RouteBuilder {
 
+    private final String ERROR_LOGGER_NAME = this.getClass().getPackage().getName() + ".error";
+
     @Value("${app.event.throttling.maxCount:1}")
     private Long eventThrottlingMaxCount;
     @Value("${app.event.throttling.periodMillis:1000}")
@@ -22,31 +24,27 @@ public class MainRouter extends RouteBuilder {
 
     @Override
     public void configure() {
-        errorHandler(deadLetterChannel("micrometer:counter:unexpectedFailures?increment=1"));
+        // @formatter:off
+        errorHandler(deadLetterChannel("direct:error"));
+
+        from("direct:error")
+            .to(String.format("log:%s?level=DEBUG", ERROR_LOGGER_NAME))
+            .to("micrometer:counter:recordsFailed");
 
         from("kafka:{{app.event.topic.name}}").routeId("event-kafka-inbound")
-                .errorHandler(deadLetterChannel("micrometer:counter:recordsUnmarshallFailure?increment=1"))
-                .to("micrometer:counter:recordsIn?increment=1")
+                .to("micrometer:counter:recordsIn")
             .unmarshal(new AvroDataFormat(Event.SCHEMA$))
-                .to("micrometer:counter:recordsUnmarshalled?increment=1")
-            .to("direct:processing-stage").id("processing-stage");
-
-        from("direct:processing-stage").routeId("processing-stage-route")
-                .errorHandler(deadLetterChannel("micrometer:counter:recordsProcessingFailure?increment=1"))
             .filter(MainRouter::matches)
-                .to("micrometer:counter:recordsFiltered?increment=1")
+                .to("micrometer:counter:recordsFiltered")
             .process(MainRouter::handle)
-                .to("micrometer:counter:recordsProcessed?increment=1")
-            .to("direct:delivery-stage").id("delivery-stage");
-
-        from("direct:delivery-stage").routeId("delivery-stage-route")
             .throttle(eventThrottlingMaxCount).timePeriodMillis(eventThrottlingPeriodMillis)
             .process(exchange -> exchange.setProperty(Exchange.CHARSET_NAME, StandardCharsets.UTF_8))
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
             .setHeader(Exchange.CONTENT_TYPE, constant("text/plain"))
             .to("{{app.external.service.url}}").id("event-http-outbound")
-                .to("micrometer:counter:recordsOut?increment=1")
+                .to("micrometer:counter:recordsOut")
         ;
+        // @formatter:on
     }
 
     private static boolean matches(Exchange exchange) {
