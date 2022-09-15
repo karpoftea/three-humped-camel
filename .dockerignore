@@ -1,4 +1,14 @@
 *
+
+# exclude gradle and project files
+!src
+!gradlew
+!gradle/*
+!build.gradle
+!settings.gradle
+!gradle.properties
+
+# exclude build results
 !build/*-runner
 !build/*-runner.jar
 !build/lib/*
