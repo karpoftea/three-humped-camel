@@ -10,13 +10,17 @@ repositories {
 }
 
 dependencies {
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'io.quarkus:quarkus-resteasy-reactive'
-    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
-    implementation 'io.quarkus:quarkus-arc'
+    implementation platform("io.quarkus.platform:quarkus-bom:2.12.1.Final")
+    implementation platform("io.quarkus.platform:quarkus-camel-bom:2.12.1.Final")
+
+    implementation "org.apache.camel.quarkus:camel-quarkus-bean"
+    implementation "org.apache.camel.quarkus:camel-quarkus-log"
+    implementation "org.apache.camel.quarkus:camel-quarkus-timer"
+    implementation "org.apache.camel.quarkus:camel-quarkus-microprofile-health"
+    implementation "org.apache.camel.quarkus:camel-quarkus-microprofile-metrics"
+    implementation "org.apache.camel.quarkus:camel-quarkus-kafka"
 
     testImplementation 'io.quarkus:quarkus-junit5'
-    testImplementation 'io.rest-assured:rest-assured'
 }
 
 group 'my.threehumpedcamel'
